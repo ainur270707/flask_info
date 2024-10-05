@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# Установка системных зависимостей
-apt-get update && apt-get install -y libc6  # Установка системных пакетов
+set -e  # Завершить скрипт при ошибке
+
+# Обновление списка пакетов и установка системных зависимостей
+apt-get update && apt-get install -y libc6
 
 # Установка Python-зависимостей
-pip install -r requirements.txt  # Установка зависимостей из requirements.txt
-
-# Запуск приложения
-python3 app.py  # Запуск вашего приложения
+pip install --no-cache-dir -r requirements.txt
