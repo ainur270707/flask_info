@@ -1,1 +1,13 @@
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+FROM ghcr.io/railwayapp/nixpacks:ubuntu-1727136237
+
+WORKDIR /app/
+
+COPY .nixpacks/nixpkgs-bf446f08bff6814b569265bef8374cfdd3d8f0e0.nix .nixpacks/nixpkgs-bf446f08bff6814b569265bef8374cfdd3d8f0e0.nix
+COPY requirements.txt .
+COPY init.sh .
+
+RUN chmod +x init.sh && ./init.sh
+
+COPY . .
+
+CMD ["python3", "app.py"]
