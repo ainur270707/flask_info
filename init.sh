@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Установка системных зависимостей
-apt-get update && apt-get install -y libgl1-mesa-glx
+apt-get update && apt-get install -r requirements.txt
 Flask
 opencv-contrib-python-headless
 ultralytics
