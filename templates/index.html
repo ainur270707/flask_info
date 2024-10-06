@@ -1,29 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Stream</title>
+    <title>YOLO Обработка Видео</title>
     <style>
-        video {
-            width: 100%;
+        #videoElement, #processedVideo {
+            width: 45%;
             height: auto;
+            border: 1px solid black;
+            margin: 10px;
+        }
+        #container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
 <body>
-    <h1>Camera Stream</h1>
-    <video id="video" autoplay playsinline></video>
+    <h1>YOLO Обработка Видео в Реальном Времени</h1>
+    <div id="container">
+        <video id="videoElement" autoplay></video>
+        <img id="processedVideo" alt="Processed Video">
+    </div>
+
+    <!-- Подключение SocketIO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js" integrity="sha512-YZaH0HeK5q/9I8xPrR3c+EWKfAnMf1j1vXrqiu4wq9PbGpR3cE4Kdlz+bkO9BDA9UbHvYNEXgIO3LWxE7VlmqA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        // Запрашиваем доступ к камере на клиенте
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function(stream) {
-                var video = document.getElementById('video');
+        const video = document.getElementById('videoElement');
+        const processedVideo = document.getElementById('processedVideo');
+        const socket = io();
+
+        // Запрос доступа к камере пользователя
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then((stream) => {
                 video.srcObject = stream;
+                video.play();
             })
-            .catch(function(err) {
-                console.log("Ошибка при доступе к камере: " + err);
+            .catch((err) => {
+                console.error("Ошибка доступа к камере: ", err);
+                alert("Не удалось получить доступ к камере.");
             });
+
+        // Отправка кадров на сервер
+        video.addEventListener('play', () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+
+            const sendFrame = () => {
+                if (video.paused || video.ended) {
+                    return;
+                }
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const dataURL = canvas.toDataURL('image/jpeg', 0.5);  // 0.5 - качество JPEG для уменьшения размера
+                socket.emit('frame', dataURL);
+                setTimeout(sendFrame, 100);  // Отправлять кадры каждые 100 мс (~10 FPS)
+            };
+            sendFrame();
+        });
+
+        // Получение обработанных кадров от сервера
+        socket.on('processed_frame', (data) => {
+            if (data) {
+                processedVideo.src = data;
+            } else {
+                console.error("Получен пустой обработанный кадр.");
+            }
+        });
     </script>
 </body>
 </html>
