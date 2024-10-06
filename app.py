@@ -4,9 +4,11 @@ import cv2
 import base64
 import numpy as np
 from ultralytics import YOLO
+import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'  # Замените на ваш секретный ключ
+
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Загрузка модели YOLO один раз при старте сервера
