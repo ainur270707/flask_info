@@ -1,6 +1,5 @@
 Flask
 flask-socketio
 eventlet
-opencv-python
+opencv-python-headless
 ultralytics
-os
