@@ -2,8 +2,12 @@
 
 set -e  # Завершить скрипт при ошибке
 
-# Обновление списка пакетов и установка системных зависимостей
-apt-get update && apt-get install -y libc6
+echo "Начало выполнения init.sh"
 
-# Установка Python-зависимостей
+echo "Активация виртуального окружения..."
+source /opt/venv/bin/activate
+
+echo "Установка Python-зависимостей из requirements.txt..."
 pip install --no-cache-dir -r requirements.txt
+
+echo "init.sh выполнен успешно."
